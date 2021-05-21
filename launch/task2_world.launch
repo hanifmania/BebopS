@@ -17,7 +17,7 @@
     <arg name="csvFilesStoring" default="false"/>
     <arg name="csvFilesStoringTime" default="60.0"/> <!-- seconds -->
     <arg name="user_account" default="giuseppe"/> <!-- account name of your pc -->
-    <arg name="waypoint_filter" default="true"/>
+    <arg name="waypoint_filter" default="false"/>
     <arg name="EKFActive" default="false"/>
     <arg name="enable_odometry_sensor_with_noise" default="false"/>
     <arg name="disable_odometry_sensor_with_noise" default="true"/>
@@ -81,6 +81,7 @@
       <remap from="/zVelocityComponents" to="/bebop/zVelocityComponents" />
       <remap from="/positionAndVelocityErrors" to="/bebop/positionAndVelocityErrors" />
       <remap from="/angularAndAngularVelocityErrors" to="/bebop/angularAndAngularVelocityErrors" />
+      <remap from="command/motor_speed" to="/bebop/command/motors" />
     </node>
 
     <!-- Launch the trajectory generator -->

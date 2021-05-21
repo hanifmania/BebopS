@@ -7,10 +7,10 @@
     <arg name="z" default="0.0" />
     <arg name="use_sim_time" default="true"/>
     <arg name="world_name" default="basic"/>
-    <arg name="wind_force" default="0.25"/>
-    <arg name="wind_start" default="5.0"/>
-    <arg name="wind_duration" default="40.0"/>
-    <arg name="wind_direction_x" default="1.0"/>
+    <arg name="wind_force" default="0.0"/>
+    <arg name="wind_start" default="0.0"/>
+    <arg name="wind_duration" default="0.0"/>
+    <arg name="wind_direction_x" default="0.0"/>
     <arg name="wind_direction_y" default="0.0"/>
     <arg name="wind_direction_z" default="0.0"/>
     <arg name="enable_odometry_sensor_with_noise" default="false"/>
