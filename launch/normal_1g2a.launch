@@ -6,8 +6,8 @@
     <arg name="x" default="0.0" />
     <arg name="y" default="0.0" />
     <arg name="z" default="0.0" />
-    
-    
+    <arg name="use_sim_time" default="true"/>
+    <arg name="world_name" default="basic"/>
     <arg name="wind_force" default="0.25"/>
     <arg name="wind_start" default="5.0"/>
     <arg name="wind_duration" default="40.0"/>
@@ -30,37 +30,17 @@
     <arg name="realsense_enabled" default="$(optenv HUSKY_REALSENSE_ENABLED 0)"/>
 
 
-   <!-- Set up the Gazebo world 
+   <!-- Set up the Gazebo world -->
   <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find bebop_simulator)/models"/>
   <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find bebop_simulator)/models"/>
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find bebop_simulator)/worlds/$(arg world_name).world" />
   </include>
-  -->
-   <param name="agriculture_geom" command="$(find xacro)/xacro --inorder '$(find cpr_agriculture_gazebo)/urdf/agriculture_geometry.urdf.xacro'" />
 
-   <!-- Set up the Gazebo world -->
-   <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find bebop_simulator)/models"/>
-  <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find bebop_simulator)/models"/> 
-   <arg name="use_sim_time" default="true" />
-    <arg name="gui" default="true" />
-    <arg name="headless" default="false" />
-    <arg name="world_name" default="$(find cpr_agriculture_gazebo)/worlds/actually_empty_world.world" />
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
-      <arg name="debug" value="0" />
-      <arg name="gui" value="$(arg gui)" />
-      <arg name="use_sim_time" value="$(arg use_sim_time)" />
-      <arg name="headless" value="$(arg headless)" />
-      <arg name="world_name" value="$(arg world_name)" />
-    </include>
-
-    <node name="agriculture_world_spawner" pkg="gazebo_ros" type="spawn_model" args="-urdf -model agriculture_geom -param agriculture_geom -x 0 -y 0 -z 0 -Y 0" />
-
-   
    <!-- Launch Husky -->
    <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
-      <arg name="laser_enabled" value="$(arg laser_enabled)"/>
-      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/>
+  <!--    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/> -->
    </include>
 
    <!-- Launch Move_Base for Husky -->

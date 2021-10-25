@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="landing_mat">
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+
+    <link name="landing_mat">
+      <pose>0 0 0.02 0 0 0</pose>
+      <visual name="mat">
+        <geometry>
+          <mesh>
+            <uri>model://landing_mat/landing_mat.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+
+  </model>
+</sdf>
