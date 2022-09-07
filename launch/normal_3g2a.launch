@@ -7,7 +7,16 @@
     <arg name="y" default="0.0" />
     <arg name="z" default="0.0" />
     <arg name="use_sim_time" default="true"/>
-    <arg name="world_name" default="basic"/>
+    <arg name="ns0"        default="jackal0"/>
+    <arg name="ns1"        default="jackal1"/>
+    <arg name="ns2"        default="jackal2"/>
+    <arg name="config0"    default="front_bumblebee2"/>
+    <arg name="config0_id" default="0"/>
+    <arg name="config1"    default="apriltags"/>
+    <arg name="config1_id" default="1"/>
+    <arg name="config2"    default="front_laser"/>
+    <arg name="config2_id" default="0"/>
+    <arg name="world_name" default="sky"/>
     <arg name="wind_force" default="0.25"/>
     <arg name="wind_start" default="5.0"/>
     <arg name="wind_duration" default="40.0"/>
@@ -37,34 +46,34 @@
     <arg name="world_name" value="$(find bebop_simulator)/worlds/$(arg world_name).world" />
   </include>
 
-  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
-    <!--<arg name="laser_enabled" value="$(arg laser_enabled)"/>-->
-    <arg name="robot_namespace" value="husky_alpha"/>
-    <arg name="multimaster" value="true"/>
+  <!-- Spawn the robots. -->
+  <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
+    <arg name="ns"            value="$(arg ns0)"/>
+    <arg name="config"        value="$(arg config0)"/>
+    <arg name="config_id"     value="$(arg config0_id)"/>
+    <arg name="use_move_base" value="true"/>
+    <arg name="x"             value="0"/>
+    <arg name="y"             value="-2"/>
+    <arg name="yaw"           value="0.0"/>
   </include>
-
-  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
-    <!--<arg name="laser_enabled" value="$(arg laser_enabled)"/>-->
-    <arg name="robot_namespace" value="husky_beta"/>
-    <arg name="multimaster" value="true"/>
-    <arg name="x" value="1.0"/>
-    <arg name="y" value="3.0"/>
-    <arg name="yaw" value="30.0"/>
+  <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
+    <arg name="ns"            value="$(arg ns1)"/>
+    <arg name="config"        value="$(arg config1)"/>
+    <arg name="config_id"     value="$(arg config1_id)"/>
+    <arg name="use_move_base" value="true"/>
+    <arg name="x"             value="-2"/>
+    <arg name="y"             value="-2"/>
+    <arg name="yaw"           value="0.0"/>
   </include>
-
-  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
-   <!-- <arg name="laser_enabled" value="$(arg laser_enabled)"/>-->
-    <arg name="robot_namespace" value="husky_gamma"/>
-    <arg name="multimaster" value="true"/>
-    <arg name="x" value="-3.0"/>
-    <arg name="y" value="-1.0"/>
-    <arg name="yaw" value="45.0"/>
+  <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
+    <arg name="ns"            value="$(arg ns2)"/>
+    <arg name="config"        value="$(arg config2)"/>
+    <arg name="config_id"     value="$(arg config2_id)"/>
+    <arg name="use_move_base" value="true"/>
+    <arg name="x"             value="0"/>
+    <arg name="y"             value="3"/>
+    <arg name="yaw"           value="0.0"/>
   </include>
-
-   <!-- Launch Move_Base for Husky -->
-   <include file="$(find husky_navigation)/launch/move_base.launch">
-      <arg name="no_static_map" value="true"/>
-   </include>  
   
    <!-- Launch Bebop_0 -->
     <group ns="$(arg name)_0">
@@ -119,7 +128,7 @@
     <!-- Launch the trajectory generator for Bebop_0 -->
    <group ns="$(arg name)0">
        <node name="waypoint_example" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints0.txt"/>
-    </group>
+    </group> 
     </group>
 
    <!-- Launch Bebop_1 -->
@@ -172,10 +181,10 @@
       <remap from="command/motor_speed" to="$(arg name)1/command/motors" />
     </node>
 
-    <!-- Launch the trajectory generator for Bebop_1-->
+    <!-- Launch the trajectory generator for Bebop_1 -->
    <group ns="$(arg name)1">
        <node name="waypoint_example" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints1.txt"/>
-    </group>
+    </group> 
     </group>
 
    

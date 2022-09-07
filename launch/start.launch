@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<launch>
+    <arg name="name" default="bebop"/> <!-- Drone's Name -->
+    <!-- UGV Mission -->
+    <node name="ugv_waypoint_3" pkg="bebop_simulator"  type="ugv_waypoint_3.py" output="screen" />
+    <!-- <node name="ugv_waypoint_2" pkg="bebop_simulator"  type="ugv_waypoint_2.py" output="screen" />  -->
+    <node name="ugv_waypoint_1" pkg="bebop_simulator"  type="ugv_waypoint_1.py" output="screen" />
+     
+    <!-- Launch Bebop_0 -->
+    <group ns="$(arg name)_0">
+        <!-- Launch the trajectory generator for Bebop_0 -->
+        <group ns="$(arg name)0">
+           <node name="waypoint_example_0" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints0.txt"/>
+        </group> 
+    </group>
+
+    <!-- Launch Bebop_1 -->
+    <group ns="$(arg name)_1">
+        <!-- Launch the trajectory generator for Bebop_1 -->
+        <group ns="$(arg name)1">
+           <node name="waypoint_example_1" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints1.txt"/>
+        </group> 
+    </group>
+</launch>

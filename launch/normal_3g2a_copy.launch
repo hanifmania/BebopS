@@ -2,13 +2,12 @@
 
 <launch>
     <arg name="name" default="bebop"/>
-    <arg name="ugv_name" default="husky"/>
     <arg name="plotName" default="bebopPlots"/>
     <arg name="x" default="0.0" />
     <arg name="y" default="0.0" />
     <arg name="z" default="0.0" />
     <arg name="use_sim_time" default="true"/>
-    <arg name="world_name" default="basic"/>
+    <arg name="world_name" default="general_2"/>
     <arg name="wind_force" default="0.25"/>
     <arg name="wind_start" default="5.0"/>
     <arg name="wind_duration" default="40.0"/>
@@ -37,32 +36,40 @@
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find bebop_simulator)/worlds/$(arg world_name).world" />
   </include>
+
+
+  <!-- Launch Husky_0 -->
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="robot_namespace" value="husky0"/>
+    <arg name="multimaster" value="true"/>
+    <arg name="x" value="-5.0"/>
+    <arg name="y" value="3.0"/>
+    <arg name="yaw" value="0.0"/>
+    <arg name="joystick" value="false"/>
+  </include>
+
+  <!-- Launch Husky_1 
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="robot_namespace" value="husky1"/>
+    <arg name="multimaster" value="true"/>
+    <arg name="x" value="-5.0"/>
+    <arg name="y" value="3.0"/>
+    <arg name="yaw" value="30.0"/>
+    <arg name="joystick" value="false"/>
+  </include> -->
+
+  <!-- Launch Husky_2 
   
-  <!-- Launch Husky -->
-   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
-      <!--<arg name="laser_enabled" value="$(arg laser_enabled)"/>
-      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/> 
-      <arg name="robot_namespace" value="$(arg ugv_name)0"/> -->
-      <arg name="multimaster" value="false"/>
-      <arg name="x" value="1.0"/>
-      <arg name="y" value="0.0"/>
-   </include>
-   
-   <!-- Launch Move_Base for Husky -->
-   <include file="$(find husky_navigation)/launch/move_base.launch">
-      <arg name="no_static_map" value="true"/>
-   </include>  
-   <!-- Launch Husky 
-   <include file="$(find husky_gazebo)/launch/spawn_husky.launch"> -->
-  <!--    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
-      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/> 
-      <arg name="robot_namespace" value="/"/>
-      <arg name="multimaster" value="true"/>
-      <arg name="x" value="1.0"/>
-      <arg name="y" value="3.0"/>
-      <arg name="yaw" value="30.0"/>
-      <arg name="joystick" value="false"/>
-   </include> -->
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="robot_namespace" value="husky2"/>
+    <arg name="multimaster" value="true"/>
+    <arg name="x" value="-4.0"/>
+    <arg name="y" value="-4.0"/>
+    <arg name="yaw" value="45.0"/>
+    <arg name="joystick" value="false"/>
+  </include> -->
 
    <!-- Launch Move_Base for Husky 
    <include file="$(find husky_navigation)/launch/move_base.launch">

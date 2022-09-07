@@ -37,38 +37,48 @@
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find bebop_simulator)/worlds/$(arg world_name).world" />
   </include>
-  
-  <!-- Launch Husky -->
-   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
-      <!--<arg name="laser_enabled" value="$(arg laser_enabled)"/>
-      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/> 
-      <arg name="robot_namespace" value="$(arg ugv_name)0"/> -->
-      <arg name="multimaster" value="false"/>
-      <arg name="x" value="1.0"/>
-      <arg name="y" value="0.0"/>
-   </include>
-   
-   <!-- Launch Move_Base for Husky -->
-   <include file="$(find husky_navigation)/launch/move_base.launch">
-      <arg name="no_static_map" value="true"/>
-   </include>  
-   <!-- Launch Husky 
-   <include file="$(find husky_gazebo)/launch/spawn_husky.launch"> -->
-  <!--    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
-      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/> 
-      <arg name="robot_namespace" value="/"/>
-      <arg name="multimaster" value="true"/>
-      <arg name="x" value="1.0"/>
-      <arg name="y" value="3.0"/>
-      <arg name="yaw" value="30.0"/>
-      <arg name="joystick" value="false"/>
-   </include> -->
 
-   <!-- Launch Move_Base for Husky 
-   <include file="$(find husky_navigation)/launch/move_base.launch">
-      <arg name="no_static_map" value="true"/>
-   </include>  -->
   
+    <!-- Launch Husky_0 -->
+    <group ns="$(arg ugv_name)_0">
+        <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+            <!-- <arg name="robot_namespace" value="$(arg ugv_name)0" />
+            <arg name="multimaster" value="true"/> -->
+            <arg name="x" value="0.0"/>
+            <arg name="y" value="0.0"/>
+            <arg name="yaw" value="30.0"/>
+        </include>
+
+        <!-- Launch the controller for Husky_0 -->
+        <!--
+        <include file="$(find husky_navigation)/launch/move_base.launch">
+            <arg name="no_static_map" value="true"/>
+        </include> -->
+    </group>
+
+    <!-- Launch Move_Base for Husky -->
+   <include file="$(find husky_navigation)/launch/move_base.launch">
+    <arg name="no_static_map" value="true"/>
+   </include>  
+
+    <!-- Launch Husky_1 
+    <group ns="$(arg ugv_name)_1">
+        <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+            <arg name="robot_namespace" value="$(arg ugv_name)1" />
+            <arg name="multimaster" value="true"/>
+            <arg name="x" value="3.0"/>
+            <arg name="y" value="3.0"/>
+            <arg name="yaw" value="0.0"/>
+        </include> -->
+
+        <!-- Launch the controller for Husky_1 -->
+        <!--
+        <include file="$(find husky_navigation)/launch/move_base.launch">
+            <arg name="no_static_map" value="true"/>
+        </include> 
+    </group> -->
+
+
    <!-- Launch Bebop_0 -->
     <group ns="$(arg name)_0">
     <include file="$(find bebop_simulator)/launch/spawn_bebop.launch">

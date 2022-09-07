@@ -4,24 +4,38 @@ project(bebop_simulator)
 add_definitions(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
+  genmsg
   geometry_msgs
   gazebo_msgs
   mav_msgs
   nav_msgs
   std_msgs
   roscpp
+  rospy
   sensor_msgs
+  actionlib
+  actionlib_msgs
+  move_base
+  move_base_msgs
+  trajectory_msgs
   cmake_modules
+  message_generation
 )
 
 find_package(
   Eigen REQUIRED
 )
 
+## Generate messages in the 'msg' folder
+add_message_files(
+  FILES
+  MRTAProblem.msg
+)
+
 catkin_package(
   INCLUDE_DIRS include ${Eigen_INCLUDE_DIRS}
   LIBRARIES position_controller extendedKalmanFilter position_controller_with_bebop waypoint_filter
-  CATKIN_DEPENDS geometry_msgs mav_msgs nav_msgs roscpp sensor_msgs std_msgs
+  CATKIN_DEPENDS geometry_msgs mav_msgs nav_msgs roscpp sensor_msgs std_msgs actionlib_msgs actionlib move_base move_base_msgs rospy trajectory_msgs message_runtime
   DEPENDS Eigen 
 )
 
@@ -31,6 +45,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
 )
+
+
 
 add_library(position_controller
    src/library/position_controller.cpp
@@ -77,6 +93,14 @@ add_dependencies(hovering_example ${catkin_EXPORTED_TARGETS})
 add_executable(waypoint_example src/nodes/waypoint_example.cpp)
 target_link_libraries(waypoint_example ${catkin_LIBRARIES})
 add_dependencies(waypoint_example ${catkin_EXPORTED_TARGETS})
+
+add_executable(ugv_waypoint src/nodes/ugv_waypoint.cpp)
+target_link_libraries(ugv_waypoint ${catkin_LIBRARIES})
+add_dependencies(ugv_waypoint ${catkin_EXPORTED_TARGETS})
+
+add_executable(uav_waypoint src/nodes/uav_waypoint.cpp)
+target_link_libraries(uav_waypoint ${catkin_LIBRARIES})
+add_dependencies(uav_waypoint ${catkin_EXPORTED_TARGETS})
 
 add_executable(quaternion_to_rpy src/nodes/quaternion_to_rpy.cpp)
 target_link_libraries(quaternion_to_rpy ${catkin_LIBRARIES})

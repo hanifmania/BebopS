@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+
+<launch>
+    <!-- 
+    <node name="ugv_waypoint.py" pkg="bebop_simulator"  type="ugv_waypoint.py" output="screen" />
+    -->
+    <!-- push table_description to factory and spawn robot in gazebo  -->
+    <node name="spawn_task1" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -32.0 -y -3.0 -z 0.01 -model task_model1 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task2" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -30.0 -y -10.0 -z 0.01 -model task_model2 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task3" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -26.0 -y -24.0 -z 0.01 -model task_model3 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task4" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -18.0 -y -10.0 -z 0.01 -model task_model4 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task5" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -14.0 -y -19.0 -z 0.01 -model task_model5 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task6" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -6.0 -y -20.0 -z 0.01 -model task_model6 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task7" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 6.0 -y -18.0 -z 0.01 -model task_model7 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task8" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 14.0 -y -10.0 -z 0.01 -model task_model8 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task9" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 16.0 -y -21.0 -z 0.01 -model task_model9 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task10" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 24.0 -y -5.0 -z 0.01 -model task_model10 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task11" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 32.0 -y -11.0 -z 0.01 -model task_model11 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task12" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 24.0 -y -19.0 -z 0.01 -model task_model12 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+
+
+    <!-- <node name="spawn_task16" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -13.5 -y -10.0 -z 0.01 -model task_model16 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task17" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 9.0 -y -10.0 -z 0.01 -model task_model17
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task18" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -10.0 -y -9.0 -z 0.01 -model task_model18 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task19" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -11.0 -y -5.0 -z 0.01 -model task_model19 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+    
+    <node name="spawn_task1" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -15.0 -y -5.0 -z 0.01 -model task_model1 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task2" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -12.0 -y -14.0 -z 0.01 -model task_model2 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task3" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -1.0 -y -16.0 -z 0.01 -model task_model3 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task4" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -15.0 -y -14.0 -z 0.01 -model task_model4 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task5" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -6.0 -y -0.0 -z 0.01 -model task_model5 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <node name="spawn_task20" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -8.0 -y -9.0 -z 0.01 -model task_model20 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task21" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -9.0 -y -11.0 -z 0.01 -model task_model22 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task23" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -10.0 -y -10.0 -z 0.01 -model task_model23 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task24" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -8.0 -y -12.0 -z 0.01 -model task_model24 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task6" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -13.0 -y -14.0 -z 0.01 -model task_model6 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task7" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -14.0 -y -16.0 -z 0.01 -model task_model7 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task8" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -15.0 -y -15.0 -z 0.01 -model task_model8 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task9" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -13.0 -y -17.0 -z 0.01 -model task_model9 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task10" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 16.0 -y -16.0 -z 0.01 -model task_model10 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+
+
+
+
+
+
+
+
+    <node name="spawn_task25" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 11.0 -y -11.0 -z 0.01 -model task_model25 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task26" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 10.0 -y -12.0 -z 0.01 -model task_model26 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task27" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 11.0 -y -7.0 -z 0.01 -model task_model27 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task11" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 15.0 -y -17.0 -z 0.01 -model task_model11 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task12" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 16.0 -y -12.0 -z 0.01 -model task_model12 
+    -file $(find gazebo_description)/models/Task/model.sdf" /> -->
+
+
+
+
+
+
+
+    
+    <!-- <node name="spawn_task28" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 8.0 -y -11.0 -z 0.01 -model task_model28 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task29" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 10.0 -y -13.0 -z 0.01 -model task_model29     
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task13" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 13.0 -y -16.0 -z 0.01 -model task_model13 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task14" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 15.0 -y -18.0 -z 0.01 -model task_model14 
+    -file $(find gazebo_description)/models/Task/model.sdf" /> -->
+    
+
+    
+
+    
+
+    
+    
+    
+
+   
+
+</launch>

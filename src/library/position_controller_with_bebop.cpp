@@ -46,7 +46,7 @@
 #define TsA                       5e-3 /* Attitude control sampling time */
 #define TsE                           5 /* Refresh landing time*/
 
-#define MAX_TILT_ANGLE            20  /* Current tilt max in degree */
+#define MAX_TILT_ANGLE            40  /* Current tilt max in degree */
 #define MAX_VERT_SPEED            1  /* Current max vertical speed in m/s */
 #define MAX_ROT_SPEED             100 /* Current max rotation speed in degree/s */
 

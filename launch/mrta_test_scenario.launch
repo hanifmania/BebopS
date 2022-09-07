@@ -1,14 +1,17 @@
 <?xml version="1.0"?>
 
 <launch>
-    <arg name="name" default="bebop"/>
-    <arg name="ugv_name" default="husky"/>
+    <arg name="name" default="bebop"/> <!-- Drone's Name -->
     <arg name="plotName" default="bebopPlots"/>
+    <arg name="rviz"       default="false"/>
     <arg name="x" default="0.0" />
     <arg name="y" default="0.0" />
     <arg name="z" default="0.0" />
     <arg name="use_sim_time" default="true"/>
-    <arg name="world_name" default="basic"/>
+    <arg name="ns0"        default="jackal0"/>
+    <arg name="config0"    default="base"/>
+    <arg name="config0_id" default="0"/>
+    <arg name="world_name" default="la_africana"/>
     <arg name="wind_force" default="0.25"/>
     <arg name="wind_start" default="5.0"/>
     <arg name="wind_duration" default="40.0"/>
@@ -35,46 +38,42 @@
   <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find bebop_simulator)/models"/>
   <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find bebop_simulator)/models"/>
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find bebop_simulator)/worlds/$(arg world_name).world" />
+    <arg name="use_sim_time" value="true"/>
+    <arg name="world_name" value="$(find bebop_simulator)/worlds/$(arg world_name).world" />  
+  </include>
+
+  <!-- Spawn the robots. -->
+  <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
+    <arg name="ns"            value="$(arg ns0)"/>
+    <arg name="config"        value="$(arg config0)"/>
+    <arg name="config_id"     value="$(arg config0_id)"/>
+    <arg name="use_move_base" value="true"/>
+    <arg name="x"             value="0"/>
+    <arg name="y"             value="0"/>
+    <arg name="yaw"           value="0.0"/>
+    <!-- 
+    <rosparam param="/jackal0/gazebo_ros_control/pid_gains">
+      front_left_wheel:
+        p: 10
+        i: 0.1
+        d: 0
+    </rosparam>  -->
   </include>
   
-  <!-- Launch Husky -->
-   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
-      <!--<arg name="laser_enabled" value="$(arg laser_enabled)"/>
-      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/> 
-      <arg name="robot_namespace" value="$(arg ugv_name)0"/> -->
-      <arg name="multimaster" value="false"/>
-      <arg name="x" value="1.0"/>
-      <arg name="y" value="0.0"/>
-   </include>
-   
-   <!-- Launch Move_Base for Husky -->
-   <include file="$(find husky_navigation)/launch/move_base.launch">
-      <arg name="no_static_map" value="true"/>
-   </include>  
-   <!-- Launch Husky 
-   <include file="$(find husky_gazebo)/launch/spawn_husky.launch"> -->
-  <!--    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
-      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/> 
-      <arg name="robot_namespace" value="/"/>
-      <arg name="multimaster" value="true"/>
-      <arg name="x" value="1.0"/>
-      <arg name="y" value="3.0"/>
-      <arg name="yaw" value="30.0"/>
-      <arg name="joystick" value="false"/>
-   </include> -->
-
-   <!-- Launch Move_Base for Husky 
-   <include file="$(find husky_navigation)/launch/move_base.launch">
-      <arg name="no_static_map" value="true"/>
-   </include>  -->
   
+  <!-- View in RVIZ. -->
+  <group if="$(arg rviz)">
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find multi_jackal_tutorials)/rviz/one_jackal.rviz" >
+      <remap from="/move_base_simple/goal" to="/$(arg ns0)/move_base_simple/goal"/>
+    </node>
+  </group>
+
    <!-- Launch Bebop_0 -->
     <group ns="$(arg name)_0">
     <include file="$(find bebop_simulator)/launch/spawn_bebop.launch">
        <arg name="name" value="$(arg name)0" />
-       <arg name="x" value="2"/>
-       <arg name="y" value="2"/>
+       <arg name="x" value="-2"/>
+       <arg name="y" value="0"/>
        <arg name="z" value="0"/>
        <arg name="wind_force" value="$(arg wind_force)"/>
        <arg name="wind_start" value="$(arg wind_start)"/>
@@ -119,18 +118,23 @@
       <remap from="command/motor_speed" to="$(arg name)0/command/motors" />
     </node>
 
-    <!-- Launch the trajectory generator for Bebop_0 -->
+    <!-- Launch the trajectory generator for Bebop_0 
    <group ns="$(arg name)0">
        <node name="waypoint_example" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints0.txt"/>
-    </group>
+    </group> -->
+
+    <!-- Launch the trajectory generator for Bebop_0 -->
+   <group ns="$(arg name)0">
+       <node name="uav_waypoint" pkg="bebop_simulator" type="uav_waypoint" output="screen"/>
+    </group> 
     </group>
 
    <!-- Launch Bebop_1 -->
     <group ns="$(arg name)_1">
     <include file="$(find bebop_simulator)/launch/spawn_bebop.launch">
        <arg name="name" value="$(arg name)1" />
-       <arg name="x" value="2"/>
-       <arg name="y" value="3"/>
+       <arg name="x" value="-2"/>
+       <arg name="y" value="2"/>
        <arg name="z" value="0"/>
        <arg name="wind_force" value="$(arg wind_force)"/>
        <arg name="wind_start" value="$(arg wind_start)"/>
@@ -175,12 +179,37 @@
       <remap from="command/motor_speed" to="$(arg name)1/command/motors" />
     </node>
 
-    <!-- Launch the trajectory generator for Bebop_1-->
+    <!-- Launch the trajectory generator for Bebop_1 
    <group ns="$(arg name)1">
        <node name="waypoint_example" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints1.txt"/>
-    </group>
+    </group>  -->
     </group>
 
-   
+    <!-- Spawn Task -->
+
+    <node name="spawn_task1" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -5.0 -y 5.0 -z 0.01 -model task_model1 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task2" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -9.0 -y 6.0 -z 0.01 -model task_model2 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task3" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 5.0 -y 5.0 -z 0.01 -model task_model3 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task4" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 9.0 -y 6.0 -z 0.01 -model task_model4 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task5" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 5.0 -y -5.0 -z 0.01 -model task_model5 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task6" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 9.0 -y -6.0 -z 0.01 -model task_model6 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task7" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -5.0 -y -5.0 -z 0.01 -model task_model7 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
+    <node name="spawn_task8" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x -9.0 -y -6.0 -z 0.01 -model task_model8 
+    -file $(find gazebo_description)/models/Task/model.sdf" />
+
 
 </launch>

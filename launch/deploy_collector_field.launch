@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<launch>
+   
+    <!-- push table_description to factory and spawn collector in gazebo  -->
+    <node name="spawn_collector_1" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x 1.0 -y 1.0 -z 0.01 -model panel_1 
+    -file $(find gazebo_description)/models/Panel/model.sdf" />
+
+    
+
+    
+    
+    
+
+   
+
+</launch>
