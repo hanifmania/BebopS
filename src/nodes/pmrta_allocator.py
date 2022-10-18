@@ -113,6 +113,9 @@ class PMRTA_Allocator():
         
         # Compute Linprog
         self.allocation_result.allocation_result, self.cost_value, self.computational_burden = self.LP_solver_KR_geq_T(self.robot_number,self.task_number,self.time_horizon,self.robot_lambda,self.d,self.task_priority,self.t_E,self.robot_battery_level,self.robot_battery_discharge_rate)
+        print('Cost Value : ', self.cost_value)
+        print('Computational Burden : ', self.computational_burden)
+        print('Optimization Result : ', self.allocation_result.allocation_result)
         self.allocation_result.robot_number = self.robot_number 
         self.allocation_result.task_number = self.task_number 
         self.allocation_result.time_horizon = self.time_horizon
@@ -360,11 +363,11 @@ class PMRTA_Allocator():
         b = b.astype(int)
         M = M.astype(int)
 
-        # print('c shape : ', c.dtype)
-        # print('A_ub shape : ', N.dtype)
-        # print('b_ub shape : ', b[T:].dtype)
-        # print('A_eq shape : ', M.dtype)
-        # print('b_eq shape : ', b[:T].dtype)
+        # print('c shape : ', c)
+        # print('A_ub shape : ', N)
+        # print('b_ub shape : ', b[T:])
+        # print('A_eq shape : ', M)
+        # print('b_eq shape : ', b[:T])
         
         start = timeit.default_timer()
         res =  linprog(c,A_ub=N,b_ub=b[T:],A_eq=M,b_eq=b[:T],bounds=(0,1))
@@ -375,6 +378,7 @@ class PMRTA_Allocator():
         # print('Sum of SOlution : ', np.sum(res.x))
         # print(np.round(res.x,decimals=0).astype(int))
 
+        #allocation_result = res.x
         allocation_result = np.round(res.x,decimals=0).astype(int)
         cost_value = res.fun
         computational_burden = stop - start
@@ -405,7 +409,7 @@ class PMRTA_Allocator():
     def callback_mission_status(self, msg):
         # subscriber to get status of mission success whether it is already finished or not
         self.mission_status = msg.data
-        self.allocation_result = self.mission_status
+        #self.allocation_result = self.mission_status
 
        
     def spin(self):

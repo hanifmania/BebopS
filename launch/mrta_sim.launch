@@ -17,7 +17,7 @@
     <arg name="config1_id" default="1"/>
     <arg name="config2"    default="front_laser"/>
     <arg name="config2_id" default="0"/>
-    <arg name="world_name" default="sky"/>
+    <arg name="world_name" default="basic"/>
     <arg name="wind_force" default="0.25"/>
     <arg name="wind_start" default="5.0"/>
     <arg name="wind_duration" default="40.0"/>
@@ -63,7 +63,7 @@
         d: 0
     </rosparam> 
   </include>
-  <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
+  <!-- <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
     <arg name="ns"            value="$(arg ns1)"/>
     <arg name="config"        value="$(arg config0)"/>
     <arg name="config_id"     value="$(arg config1_id)"/>
@@ -92,7 +92,7 @@
         i: 0.1
         d: 0
     </rosparam> 
-  </include>
+  </include> -->
   
   <!-- View in RVIZ. -->
   <group if="$(arg rviz)">
@@ -100,7 +100,7 @@
       <remap from="/move_base_simple/goal" to="/$(arg ns2)/move_base_simple/goal"/>
     </node>
   </group>
-
+<!-- 
    <!-- Launch Bebop_0 -->
     <group ns="$(arg name)_0">
     <include file="$(find bebop_simulator)/launch/spawn_bebop.launch">
@@ -211,7 +211,7 @@
    <group ns="$(arg name)1">
        <node name="waypoint_example" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints1.txt"/>
     </group>  -->
-    </group>
+    </group> -->
 
    
 

@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+
+<launch>
+    <arg name="name" default="bebop"/> <!-- Drone's Name -->
+    <arg name="plotName" default="bebopPlots"/>
+    <!-- <arg name="rviz"       default="false"/> -->
+    <arg name="x" default="0.0" />
+    <arg name="y" default="0.0" />
+    <arg name="z" default="0.0" />
+    <arg name="use_sim_time" default="true"/>
+    <arg name="ns0"        default="jackal0"/>
+    <arg name="ns1"        default="jackal1"/>
+    <arg name="ns2"        default="jackal2"/>
+    <arg name="config0"    default="front_bumblebee2"/>
+    <arg name="config0_id" default="0"/>
+    <arg name="config1"    default="apriltags"/>
+    <arg name="config1_id" default="1"/>
+    <arg name="config2"    default="front_laser"/>
+    <arg name="config2_id" default="0"/>
+    <arg name="world_name" default="basic"/>
+    <arg name="wind_force" default="0.25"/>
+    <arg name="wind_start" default="5.0"/>
+    <arg name="wind_duration" default="40.0"/>
+    <arg name="wind_direction_x" default="1.0"/>
+    <arg name="wind_direction_y" default="0.0"/>
+    <arg name="wind_direction_z" default="0.0"/>
+    <arg name="csvFilesStoring" default="false"/>
+    <arg name="csvFilesStoringTime" default="60.0"/> <!-- seconds -->
+    <arg name="user_account" default="cthornton"/> <!-- account name of your pc -->
+    <arg name="waypoint_filter" default="false"/>
+    <arg name="EKFActive" default="false"/>
+    <arg name="enable_odometry_sensor_with_noise" default="false"/>
+    <arg name="disable_odometry_sensor_with_noise" default="true"/>
+    <arg name="enable_ground_truth_sensor" default="false"/>
+    <arg name="enable_wind_plugin" default="false"/>
+    <arg name="enable_laser1D" default="false"/>
+    <arg name="enable_plots" default="false"/>
+    <arg name="enable_imu" default="true"/>
+    <arg name="laser_enabled" default="$(optenv HUSKY_LMS1XX_ENABLED 1)"/>
+    <arg name="realsense_enabled" default="$(optenv HUSKY_REALSENSE_ENABLED 0)"/>
+
+    <arg name="ns"        default="jackal0"/>
+    <arg name="config"    default="base"/>
+    <arg name="config_id" default="0"/>
+    <arg name="gui"       default="true"/>
+    <arg name="rviz"      default="false"/>
+
+  <!-- Set up the Gazebo world -->
+  <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find bebop_simulator)/models"/>
+  <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find bebop_simulator)/models"/>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"          value="$(arg gui)"/>
+    <arg name="world_name" value="$(find bebop_simulator)/worlds/$(arg world_name).world" />
+  </include>
+
+  <!-- Spawn the robots. -->
+  <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
+    <arg name="ns"            value="$(arg ns)"/>
+    <arg name="config"        value="$(arg config)"/>
+    <arg name="config_id"     value="$(arg config_id)"/>
+    <arg name="use_move_base" value="true"/>
+    <arg name="x"             value="0"/>
+    <arg name="y"             value="-2"/>
+    <arg name="yaw"           value="0.0"/>
+  </include>
+  
+  
+  <!-- View in RVIZ. -->
+  <group if="$(arg rviz)">
+    <node name="rviz" pkg="rviz" type="rviz" ns="$(arg ns)" args="-d $(find multi_jackal_tutorials)/rviz/one_jackal.rviz" >
+      <remap from="/move_base_simple/goal" to="/$(arg ns)/move_base_simple/goal"/>
+    </node>
+  </group>
+
+
+  <!-- Launch Bebop_0 -->
+  <group ns="$(arg name)_0">
+  <include file="$(find bebop_simulator)/launch/spawn_bebop.launch">
+      <arg name="name" value="$(arg name)0" />
+      <arg name="x" value="0"/>
+      <arg name="y" value="-1"/>
+      <arg name="z" value="0"/>
+      <arg name="wind_force" value="$(arg wind_force)"/>
+      <arg name="wind_start" value="$(arg wind_start)"/>
+      <arg name="wind_duration" value="$(arg wind_duration)"/>
+      <arg name="wind_direction_x" value="$(arg wind_direction_x)"/>
+      <arg name="wind_direction_y" value="$(arg wind_direction_y)"/>
+      <arg name="wind_direction_z" value="$(arg wind_direction_z)"/>
+      <!-- The disable_odometry_sensor_with_noise will only become true if enable_odometry_sensor_with_noise will is false.
+      In this way, only one odometry sensor will be simulated: with or without noise. -->
+      <arg name="enable_odometry_sensor_with_noise" value="$(arg enable_odometry_sensor_with_noise)"/>
+      <param name="disable_odometry_sensor_with_noise" value="false" unless="$(arg enable_odometry_sensor_with_noise)" />
+      <arg name="disable_odometry_sensor_with_noise" value="$(arg disable_odometry_sensor_with_noise)"/>
+      <arg name="enable_ground_truth_sensor" value="$(arg enable_ground_truth_sensor)"/>
+      <arg name="enable_wind_plugin" value="$(arg enable_wind_plugin)"/>
+      <arg name="enable_laser1D" value="$(arg enable_laser1D)"/>
+      <arg name="enable_imu" value="$(arg enable_imu)"/>
+  </include>
+
+  <!-- Launch the controller for Bebop_0 -->
+  <node name="position_controller_node" pkg="bebop_simulator" type="position_controller_node" output="screen">
+    <rosparam command="load" file="$(find bebop_simulator)/resource/controller_bebop.yaml" />
+    <rosparam command="load" file="$(find bebop_simulator)/resource/bebop.yaml" />
+    <rosparam command="load" file="$(find bebop_simulator)/resource/EKF_matrix.yaml" />
+    <rosparam command="load" file="$(find bebop_simulator)/resource/waypoint_filter.yaml" />
+    <param name="use_sim_time" value="$(arg use_sim_time)" />
+    <param name="csvFilesStoring" value="$(arg csvFilesStoring)"/>
+    <param name="csvFilesStoringTime" value="$(arg csvFilesStoringTime)"/>
+    <param name="user_account" value="$(arg user_account)"/>
+    <param name="waypoint_filter" value="$(arg waypoint_filter)"/>
+    <param name="EKFActive" value="$(arg EKFActive)"/>
+    <remap from="odometry" to="/$(arg name)0/odometry" />
+    <remap from="odometry_gt" to="$(arg name)0/odometry_gt" />
+    <remap from="filteredOutput" to="$(arg name)0/filteredOutput" />
+    <remap from="referenceAngles" to="$(arg name)0/referenceAngles" />
+    <remap from="stateErrors" to="$(arg name)0/stateErrors" />
+    <remap from="smoothedTrajectory" to="$(arg name)0/smoothedTrajectory" />
+    <remap from="command/trajectory" to="$(arg name)0/command/trajectory" />
+    <remap from="uTerrComponents" to="$(arg name)0/uTerrComponents" />
+    <remap from="zVelocityComponents" to="$(arg name)0/zVelocityComponents" />
+    <remap from="positionAndVelocityErrors" to="$(arg name)0/positionAndVelocityErrors" />
+    <remap from="angularAndAngularVelocityErrors" to="$(arg name)0/angularAndAngularVelocityErrors" />
+    <remap from="command/motor_speed" to="$(arg name)0/command/motors" />
+  </node>
+
+  <!-- Launch the trajectory generator for Bebop_0 
+  <group ns="$(arg name)0">
+      <node name="waypoint_example" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints0.txt"/>
+  </group> -->
+  </group>
+  
+
+</launch>

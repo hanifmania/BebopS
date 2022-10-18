@@ -164,11 +164,11 @@ class Mission_Data_Center():
     
     def spin(self):
         while not rospy.is_shutdown():
-            #rospy.loginfo("Problem Deployed")
-            #self.pub_robot_data.publish(self.allocation_result)
-            #self.pub_task_data.publish(self.allocation_result)
+            # rospy.loginfo("Problem Deployed")
+            # self.pub_robot_data.publish(self.allocation_result)
+            # self.pub_task_data.publish(self.allocation_result)
             # self.pub_mission_status.publish(False)
-            #self.pub_data_record.publish(self.allocation_result)
+            # self.pub_data_record.publish(self.allocation_result)
 
             self.rate.sleep()
 
@@ -178,6 +178,7 @@ if __name__ == '__main__':
     try:
         mission_data_center = Mission_Data_Center()
         mission_data_center.spin()
+        
 
     except rospy.ROSInterruptException:
         pass

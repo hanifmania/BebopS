@@ -19,7 +19,7 @@ class MRTAProblemGenerator():
         rospy.init_node('mrta_problem_generator', anonymous=True)
         self.rate = rospy.Rate(10) # 10Hz
         self.mission_status = False
-        self.montecarlo_number = 10 # How many times to run the simulation
+        self.montecarlo_number = 100 # How many times to run the simulation
         self.montecarlo_id = 1 # Initialization of Montecarlo Simulation Counter
 
         # Initialize Variable to save MRTA Problem Parameter

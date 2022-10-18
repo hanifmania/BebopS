@@ -22,6 +22,7 @@
       </sky>
     </scene>
     <plugin name='ros_interface_plugin' filename='librotors_gazebo_ros_interface_plugin.so'/>
+    <plugin name="world_gazebo" filename="libworld_gazebo.so" />
     <model name='ground_plane'>
       <static>1</static>
       <link name='link'>
