@@ -17,7 +17,7 @@
     <arg name="config1_id" default="1"/>
     <arg name="config2"    default="front_laser"/>
     <arg name="config2_id" default="0"/>
-    <arg name="world_name" default="la-africana-plain"/>
+    <arg name="world_name" default="basic"/>
     <arg name="wind_force" default="0.25"/>
     <arg name="wind_start" default="5.0"/>
     <arg name="wind_duration" default="40.0"/>
@@ -215,12 +215,12 @@
     </group>  -->
     </group>
 
-    <node name="mrta_problem_generator" pkg="bebop_simulator"  type="mrta_problem_generator.py" output="screen" />
+    <!-- <node name="mrta_problem_generator" pkg="bebop_simulator"  type="mrta_problem_generator.py" output="screen" />
     <node name="pmrta_allocator" pkg="bebop_simulator"  type="pmrta_allocator.py" output="screen" />
     <node name="genetic_allocator" pkg="bebop_simulator"  type="genetic_allocator.py" output="screen" />
     <node name="mission_data_center" pkg="bebop_simulator"  type="mission_data_center.py" output="screen" />
     <node name="task_dynamics" pkg="bebop_simulator"  type="task_dynamics.py" output="screen" />
-    <node name="battery_dynamics" pkg="bebop_simulator"  type="battery_dynamics.py" output="screen" />
+    <node name="battery_dynamics" pkg="bebop_simulator"  type="battery_dynamics.py" output="screen" /> -->
     
 
 </launch>

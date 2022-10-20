@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<launch>
+    <arg name="rviz"       default="true"/>
+    <arg name="x" default="0.0" />
+    <arg name="y" default="0.0" />
+    <arg name="z" default="0.0" />
+    <arg name="use_sim_time" default="true"/>
+    <arg name="name" default="jackal"/>
+    <arg name="id" default="0"/>
+    <arg name="ns0"        default="jackal0"/>
+    <arg name="ns1"        default="jackal1"/>
+    <arg name="ns2"        default="jackal2"/>
+    <arg name="config"    default="front_bumblebee2"/>
+    <arg name="config_id" default="0"/>
+    <arg name="laser_enabled" default="$(optenv HUSKY_LMS1XX_ENABLED 1)"/>
+    <arg name="realsense_enabled" default="$(optenv HUSKY_REALSENSE_ENABLED 0)"/>
+
+
+
+  <!-- Spawn the robots. -->
+  <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
+    <arg name="ns"            value="$(arg name)$(arg id)"/>
+    <arg name="config"        value="$(arg config)"/>
+    <arg name="config_id"     value="$(arg id)"/>
+    <arg name="use_move_base" value="true"/>
+    <arg name="x"             value="1"/>
+    <arg name="y"             value="$(arg id)"/>
+    <arg name="yaw"           value="1.57"/>
+    <rosparam param="/$(arg name)$(arg id)/gazebo_ros_control/pid_gains">
+      front_left_wheel:
+        p: 10
+        i: 0.1
+        d: 0
+    </rosparam> 
+  </include>
+    
+
+</launch>
