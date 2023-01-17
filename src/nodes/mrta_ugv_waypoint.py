@@ -28,10 +28,14 @@ class UGV_Waypoint():
         # rospy.Timer(rospy.Duration(60), self.my_callback)
 
         # Initialize variables here
-        self.k = 0          # Waypoint target-k
-        self.task_id = []   # List to store active task-id 
-        self.task_x = []    # List to store active task in x position
-        self.task_y = []    # List to store active task in y position
+        self.jackal_namespace = rospy.get_namespace()[1:]    # Get namespace of the node and delete first character of it (To extract the namespace with id for move base frame)
+        self.k = -1                                          # Waypoint target-k, k = -1 means that there is no active waypoint    
+        self.task_id = []                                    # List to store active task-id 
+        self.task_x = []                                     # List to store active task in x position
+        self.task_y = []                                     # List to store active task in y position
+
+        # Starting Procedure for Jackal
+        # self.getStartingPosition()
     
     def initializeSubscribers(self):
         # member helper function to set up subscribers (Put all of subscribers here)
@@ -57,6 +61,9 @@ class UGV_Waypoint():
     # def my_callback(self,event):
     #     self.k = self.k + 1
 
+    # def getStartingPosition(self):
+    #     print('Get STarting Position of Jackal-x')
+
     def callback_dynamics(self,msg):
         # Subscriber to get the set of MRTA problem parameter published by mrta_problem_generator node
 
@@ -73,24 +80,26 @@ class UGV_Waypoint():
             self.task_x.append(msg.gazebo_tasks_info[i].task_pose.x)
             self.task_y.append(msg.gazebo_tasks_info[i].task_pose.y)
 
+
     def callback_waypoint(self,msg):
         # Subscriber to get the set of MRTA problem parameter published by mrta_problem_generator node
 
         self.k = msg.data
         print('Receiving waypoint ',self.k)
+        
 
     def movebase_client(self,target_x,target_y):
 
-        client = actionlib.SimpleActionClient('jackal0/move_base',MoveBaseAction)
+        client = actionlib.SimpleActionClient('move_base',MoveBaseAction) 
         client.wait_for_server()
 
         client.cancel_goal()
         
         # Define the goal
         goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = "jackal0/odom"
-        goal.target_pose.pose.position.x = target_x - 1
-        goal.target_pose.pose.position.y = target_y
+        goal.target_pose.header.frame_id = str(self.jackal_namespace) + "odom"
+        goal.target_pose.pose.position.x = target_x - 1     # Make it General
+        goal.target_pose.pose.position.y = target_y         # Make it General
         goal.target_pose.pose.position.z = 0.0
         goal.target_pose.pose.orientation.x = 0.0
         goal.target_pose.pose.orientation.y = 0.0
@@ -107,16 +116,18 @@ class UGV_Waypoint():
     
     def spin(self):
         while not rospy.is_shutdown():
-            print('Swim to Task ',self.k)
-            # If there is an active task then go to k-waypoint
-            if(self.task_id):
-                result = self.movebase_client(self.task_x[self.k]-3,self.task_y[self.k]+0.75)
+            
+            # If there is an active task and active waypoint then go to waypoint-k
+            if(self.k >= 0):
+                print('Ride to Task ',self.k)
+                if(self.task_id):
+                    result = self.movebase_client(self.task_x[self.k]-3,self.task_y[self.k]+0.75)
             self.rate.sleep()
 
 
 
 if __name__ == '__main__':
-    try:
+    try:   
         ugv_waypoint = UGV_Waypoint()
         ugv_waypoint.spin()
         

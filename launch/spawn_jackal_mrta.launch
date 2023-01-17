@@ -34,6 +34,16 @@
         d: 0
     </rosparam> 
   </include>
-    
+  
+  <!-- Run Waypoint Manager Node (Move Base) for Jackal -->
+  <!-- <node name="ugv_waypoint_$(arg id)" pkg="bebop_simulator"  type="mrta_ugv_waypoint.py" args="jackalID $(arg id)" output="screen" /> -->
+  
+  <!-- <node name="ugv_waypoint_$(arg id)" pkg="bebop_simulator"  type="mrta_ugv_waypoint.py" output="screen" /> -->
+  
+  <group ns="$(arg name)$(arg id)">
+      <node name="ugv_waypoint_manager" pkg="bebop_simulator" type="mrta_ugv_waypoint.py" output="screen">
+        <remap from="/update_waypoint" to="/$(arg name)$(arg id)/update_waypoint" />
+      </node>
+    </group>
 
 </launch>

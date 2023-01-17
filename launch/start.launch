@@ -18,12 +18,12 @@
     <node name="ugv_waypoint_2" pkg="bebop_simulator"  type="ugv_waypoint_2.py" output="screen" /> 
     <node name="ugv_waypoint_1" pkg="bebop_simulator"  type="ugv_waypoint_1.py" output="screen" /> -->
     <!-- <node name="ugv_waypoint" pkg="bebop_simulator"  type="ugv_waypoint.py" output="screen" /> -->
-    <node name="ugv_waypoint_1" pkg="bebop_simulator"  type="mrta_ugv_waypoint.py" output="screen" />
+    <!-- <node name="ugv_waypoint_1" pkg="bebop_simulator"  type="mrta_ugv_waypoint.py" output="screen" /> -->
      
     <!-- Launch Bebop_0 
     <group ns="$(arg name)_0"> -->
         <!-- Launch the trajectory generator for Bebop_0 -->
-        <!-- <group ns="$(arg name)0">
+        <!-- <group ns="$(arg name)0"> 
            <node name="waypoint_example_0" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints0.txt"/>
         </group>  
         <group ns="$(arg name)0">
