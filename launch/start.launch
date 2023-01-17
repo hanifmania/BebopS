@@ -2,24 +2,41 @@
 
 <launch>
     <arg name="name" default="bebop"/> <!-- Drone's Name -->
-    <!-- UGV Mission -->
-    <node name="ugv_waypoint_3" pkg="bebop_simulator"  type="ugv_waypoint_3.py" output="screen" />
-    <!-- <node name="ugv_waypoint_2" pkg="bebop_simulator"  type="ugv_waypoint_2.py" output="screen" />  -->
-    <node name="ugv_waypoint_1" pkg="bebop_simulator"  type="ugv_waypoint_1.py" output="screen" />
-     
-    <!-- Launch Bebop_0 -->
-    <group ns="$(arg name)_0">
-        <!-- Launch the trajectory generator for Bebop_0 -->
-        <group ns="$(arg name)0">
-           <node name="waypoint_example_0" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints0.txt"/>
-        </group> 
-    </group>
+    <arg name="rviz" default="true"/> <!-- Drone's Name -->
 
-    <!-- Launch Bebop_1 -->
-    <group ns="$(arg name)_1">
-        <!-- Launch the trajectory generator for Bebop_1 -->
+
+
+
+    <!-- View in RVIZ. -->
+    <!-- <group if="$(arg rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find multi_jackal_tutorials)/rviz/three_jackal.rviz" >
+        <remap from="/move_base_simple/goal" to="/jackal2/move_base_simple/goal"/>
+        </node>
+    </group> -->
+    <!-- UGV Mission -->
+    <!-- <node name="ugv_waypoint_3" pkg="bebop_simulator"  type="ugv_waypoint_3.py" output="screen" />
+    <node name="ugv_waypoint_2" pkg="bebop_simulator"  type="ugv_waypoint_2.py" output="screen" /> 
+    <node name="ugv_waypoint_1" pkg="bebop_simulator"  type="ugv_waypoint_1.py" output="screen" /> -->
+    <!-- <node name="ugv_waypoint" pkg="bebop_simulator"  type="ugv_waypoint.py" output="screen" /> -->
+    <node name="ugv_waypoint_1" pkg="bebop_simulator"  type="mrta_ugv_waypoint.py" output="screen" />
+     
+    <!-- Launch Bebop_0 
+    <group ns="$(arg name)_0"> -->
+        <!-- Launch the trajectory generator for Bebop_0 -->
+        <!-- <group ns="$(arg name)0">
+           <node name="waypoint_example_0" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints0.txt"/>
+        </group>  
+        <group ns="$(arg name)0">
+            <node name="uav_waypoint_0" pkg="bebop_simulator" type="mrta_uav_waypoint" output="screen"/>
+         </group> 
+    </group> -->
+
+
+    <!-- Launch Bebop_1 
+    <group ns="$(arg name)_1"> -->
+        <!-- Launch the trajectory generator for Bebop_1 
         <group ns="$(arg name)1">
            <node name="waypoint_example_1" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints1.txt"/>
         </group> 
-    </group>
+    </group> -->
 </launch>

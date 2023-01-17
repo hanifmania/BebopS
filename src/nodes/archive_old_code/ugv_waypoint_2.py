@@ -6,10 +6,10 @@ from smach import State,StateMachine
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 waypoints = [
-    ['one', (6.0, 18.0), (0.0, 0.0, 0.0, 1.0)],
-    ['two', (16.0, 21.0), (0.0, 0.0, -0.984047240305, 0.177907360295)],
-    ['three', (14.0, 11.0), (0.0, 0.0, -0.984047240305, 0.177907360295)],
-    ['four', (1.0, 33.0), (0.0, 0.0, -0.984047240305, 0.177907360295)]
+    ['one', (3.0, -10.0), (0.0, 0.0, 0.0, 1.0)],
+    ['two', (5.0, -15.0), (0.0, 0.0, -0.984047240305, 0.177907360295)],
+    ['three', (10.0, -7.0), (0.0, 0.0, -0.984047240305, 0.177907360295)],
+    ['four', (12.0, -10.0), (0.0, 0.0, -0.984047240305, 0.177907360295)]
 ]
 
 class Waypoint(State):
@@ -17,12 +17,12 @@ class Waypoint(State):
         State.__init__(self, outcomes=['success'])
 
         # Get an action client
-        self.client = actionlib.SimpleActionClient('jackal0/move_base', MoveBaseAction)
+        self.client = actionlib.SimpleActionClient('jackal2/move_base', MoveBaseAction)
         self.client.wait_for_server()
 
         # Define the goal
         self.goal = MoveBaseGoal()
-        self.goal.target_pose.header.frame_id = 'jackal0/odom'
+        self.goal.target_pose.header.frame_id = 'jackal2/odom'
         self.goal.target_pose.pose.position.x = position[0]
         self.goal.target_pose.pose.position.y = position[1]
         self.goal.target_pose.pose.position.z = 0.0

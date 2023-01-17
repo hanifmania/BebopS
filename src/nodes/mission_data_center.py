@@ -13,6 +13,7 @@ from nav_msgs.msg import Odometry
 from std_srvs.srv import SetBool
 
 from task_switch.msg import PMRTAResult
+from allocation_common.msg import gazebo2world_info
 
 class Mission_Data_Center():
 
@@ -34,6 +35,7 @@ class Mission_Data_Center():
        
         # self.update_robot_dynamics = rospy.Subscriber("/mrta_problem_set", Int64, self.callback_problem)
         # self.update_robot_data = rospy.Subscriber("/robot_data_update", Int64, self.callback_robot)
+        self.update_dynamics = rospy.Subscriber("/allocation_gazebo/gazebo2world_info", gazebo2world_info, self.callback_dynamics)
         self.update_task_data = rospy.Subscriber("/task_dynamics_update", Int64, self.callback_task)
         self.update_battery_data = rospy.Subscriber("/battery_dynamics_update", Int64, self.callback_battery)
         self.update_jackal_0 = rospy.Subscriber("/jackal0/joint_states", JointState, self.callback_jackal_0)
@@ -45,6 +47,11 @@ class Mission_Data_Center():
         
         #self.reset_service = rospy.Service("/reset_counter", SetBool, self.callback_reset_counter)
 
+    
+    def callback_dynamics(self, msg):
+        # subscriber to get status of mission success whether it is already finished or not
+        self.bebop0_odom = 10
+    
     def callback_bebop_0(self, msg):
         # subscriber to get status of mission success whether it is already finished or not
         # self.bebop0_odom = msg.data

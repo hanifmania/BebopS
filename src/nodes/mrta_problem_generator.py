@@ -19,7 +19,7 @@ class MRTAProblemGenerator():
         rospy.init_node('mrta_problem_generator', anonymous=True)
         self.rate = rospy.Rate(10) # 10Hz
         self.mission_status = False
-        self.montecarlo_number = 100 # How many times to run the simulation
+        self.montecarlo_number = 1 # How many times to run the simulation
         self.montecarlo_id = 1 # Initialization of Montecarlo Simulation Counter
 
         # Initialize Variable to save MRTA Problem Parameter
@@ -108,12 +108,19 @@ class MRTAProblemGenerator():
         # Procedure to randomize the value for the problem parameter and save it to msg format
 
         # Load Parameter for Randomization
-        self.max_robot_number = rospy.get_param("/max_robot_number")
-        self.max_task_number = rospy.get_param("/max_task_number")
-        self.max_field_dimension_x = rospy.get_param("/max_field_dimension_x")
-        self.max_field_dimension_y = rospy.get_param("/max_field_dimension_y")
-        self.mrta_problem_message.time_horizon = rospy.get_param("/time_horizon")
+        # self.max_robot_number = rospy.get_param("/max_robot_number")
+        # self.max_task_number = rospy.get_param("/max_task_number")
+        # self.max_field_dimension_x = rospy.get_param("/max_field_dimension_x")
+        # self.max_field_dimension_y = rospy.get_param("/max_field_dimension_y")
+        # self.mrta_problem_message.time_horizon = rospy.get_param("/time_horizon")
         
+
+        self.max_robot_number = 2
+        self.max_task_number = 5
+        self.max_field_dimension_x = 30
+        self.max_field_dimension_y = 30
+        self.mrta_problem_message.time_horizon = 4
+
         # Assign random value range for each parameter
         # random.randint(lower bound, higher bound, size) return integer value lower bound <= value <= higher bound for size mentioned
         # random.random(size) return open float value from [0,1)
@@ -148,8 +155,8 @@ class MRTAProblemGenerator():
 
 if __name__ == '__main__':
     try:
-        # problem = MRTAProblemGenerator(True)
-        problem = MRTAProblemGenerator()
+        problem = MRTAProblemGenerator(True)
+        # problem = MRTAProblemGenerator()
         problem.spin()
 
     except rospy.ROSInterruptException:

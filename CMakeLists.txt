@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   trajectory_msgs
   cmake_modules
   message_generation
+  allocation_common
 )
 
 find_package(
@@ -86,21 +87,9 @@ add_dependencies(position_controller_with_bebop_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(position_controller_with_bebop_node
   position_controller_with_bebop extendedKalmanFilter waypoint_filter  ${catkin_LIBRARIES})
 
-add_executable(hovering_example src/nodes/hovering_example.cpp)
-target_link_libraries(hovering_example ${catkin_LIBRARIES})
-add_dependencies(hovering_example ${catkin_EXPORTED_TARGETS})
-
-add_executable(waypoint_example src/nodes/waypoint_example.cpp)
-target_link_libraries(waypoint_example ${catkin_LIBRARIES})
-add_dependencies(waypoint_example ${catkin_EXPORTED_TARGETS})
-
-add_executable(ugv_waypoint src/nodes/ugv_waypoint.cpp)
-target_link_libraries(ugv_waypoint ${catkin_LIBRARIES})
-add_dependencies(ugv_waypoint ${catkin_EXPORTED_TARGETS})
-
-add_executable(uav_waypoint src/nodes/uav_waypoint.cpp)
-target_link_libraries(uav_waypoint ${catkin_LIBRARIES})
-add_dependencies(uav_waypoint ${catkin_EXPORTED_TARGETS})
+add_executable(mrta_uav_waypoint src/nodes/mrta_uav_waypoint.cpp)
+target_link_libraries(mrta_uav_waypoint ${catkin_LIBRARIES})
+add_dependencies(mrta_uav_waypoint ${catkin_EXPORTED_TARGETS})
 
 add_executable(quaternion_to_rpy src/nodes/quaternion_to_rpy.cpp)
 target_link_libraries(quaternion_to_rpy ${catkin_LIBRARIES})
@@ -110,7 +99,7 @@ install(TARGETS position_controller extendedKalmanFilter position_controller_wit
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
-install(TARGETS position_controller position_controller_with_bebop_node hovering_example waypoint_example quaternion_to_rpy
+install(TARGETS position_controller position_controller_with_bebop_node quaternion_to_rpy
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

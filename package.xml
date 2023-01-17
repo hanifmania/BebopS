@@ -42,6 +42,7 @@
   <build_depend>tf2</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>message_generation</build_depend>
+  <build_depend>allocation_common</build_depend>
   
 
   <!-- Dependencies needed after this package is compiled. -->
@@ -64,6 +65,7 @@
   <run_depend>sensor_msgs</run_depend>
   <run_depend>tf2</run_depend>
   <run_depend>tf</run_depend>
+  <run_depend>allocation_common</run_depend>
   <run_depend>message_runtime</run_depend>
 
 </package>
