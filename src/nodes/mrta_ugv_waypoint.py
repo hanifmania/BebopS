@@ -29,13 +29,19 @@ class UGV_Waypoint():
 
         # Initialize variables here
         self.jackal_namespace = rospy.get_namespace()[1:]    # Get namespace of the node and delete first character of it (To extract the namespace with id for move base frame)
+        self.jackal_id = int(self.jackal_namespace[-2])      # Get Jackal ID from the namespace
         self.k = -1                                          # Waypoint target-k, k = -1 means that there is no active waypoint    
         self.task_id = []                                    # List to store active task-id 
         self.task_x = []                                     # List to store active task in x position
         self.task_y = []                                     # List to store active task in y position
-
-        # Starting Procedure for Jackal
-        # self.getStartingPosition()
+        self.robot_id = []                                   # List to store active robot-id 
+        self.robot_x = []                                    # List to store active robot in x position
+        self.robot_y = []                                    # List to store active robot in y position
+        self.isOriginSaved = False                           # Flag whether origin location of the robot has been saved or not
+        self.shadow_drift_x = -3                             # The drift of the shadow location in the ground relative to the original task location (in the x-coordinate) 
+        self.shadow_drift_y = 0.75                           # The drift of the shadow location in the ground relative to the original task location (in the y-coordinate) 
+        self.origin_x = 0                                    # The default starting position (x-coordinate) of jackal-x (Will be updated by getOriginLocation() procedure
+        self.origin_y = 0                                    # The default starting position (y-coordinate) of jackal-x (Will be updated by getOriginLocation() procedure
     
     def initializeSubscribers(self):
         # member helper function to set up subscribers (Put all of subscribers here)
@@ -61,12 +67,46 @@ class UGV_Waypoint():
     # def my_callback(self,event):
     #     self.k = self.k + 1
 
-    # def getStartingPosition(self):
-    #     print('Get STarting Position of Jackal-x')
+    def getOriginLocation(self):
+        # Procedure to get origin location (starting deployment) in Gazebo for local navigation correction in move_base
+        if (self.isOriginSaved == False):
+            i = 0
+            while (i<len(self.robot_id)) and (self.robot_id[i] != (5+self.jackal_id)):
+                i = i + 1
+            
+            if (i<len(self.robot_id)):
+                self.origin_x = self.robot_x[i]
+                self.origin_y = self.robot_y[i]
+                self.isOriginSaved = True
+
+
+
+        # if (self.jackal_id < len(self.robot_id)):
+        #     if (self.isOriginSaved == False):
+        #         self.origin_x = self.robot_x[self.jackal_id]
+        #         self.origin_y = self.robot_y[self.jackal_id]
+        #         # print("Origin detected : ", self.origin_x," ---- ", self.origin_y)
+        #         self.isOriginSaved = True
 
     def callback_dynamics(self,msg):
         # Subscriber to get the set of MRTA problem parameter published by mrta_problem_generator node
 
+        # Update robots dynamics
+        
+        # Clear the previous states, and re-push the new states of robots
+        self.robot_id.clear()
+        self.robot_x.clear()
+        self.robot_y.clear()
+
+        # Update new states of robots
+        for i in range(0,len(msg.gazebo_robots_info)):
+            self.robot_id.append(msg.gazebo_robots_info[i].robot_ID)
+            self.robot_x.append(msg.gazebo_robots_info[i].robot_pose.position.x)
+            self.robot_y.append(msg.gazebo_robots_info[i].robot_pose.position.y)
+        
+        # Save origin location of robot (starting position)
+        self.getOriginLocation()
+        
         # Update tasks dynamics
         
         # Clear the previous states, and re-push the new states of robots
@@ -98,8 +138,8 @@ class UGV_Waypoint():
         # Define the goal
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = str(self.jackal_namespace) + "odom"
-        goal.target_pose.pose.position.x = target_x - 1     # Make it General
-        goal.target_pose.pose.position.y = target_y         # Make it General
+        goal.target_pose.pose.position.x = target_x - self.origin_x     
+        goal.target_pose.pose.position.y = target_y - self.origin_y       
         goal.target_pose.pose.position.z = 0.0
         goal.target_pose.pose.orientation.x = 0.0
         goal.target_pose.pose.orientation.y = 0.0
@@ -116,12 +156,11 @@ class UGV_Waypoint():
     
     def spin(self):
         while not rospy.is_shutdown():
-            
             # If there is an active task and active waypoint then go to waypoint-k
             if(self.k >= 0):
-                print('Ride to Task ',self.k)
+                # print('Ride to Task ',self.k)
                 if(self.task_id):
-                    result = self.movebase_client(self.task_x[self.k]-3,self.task_y[self.k]+0.75)
+                    result = self.movebase_client(self.task_x[self.k]+self.shadow_drift_x,self.task_y[self.k]+self.shadow_drift_y)
             self.rate.sleep()
 
 
