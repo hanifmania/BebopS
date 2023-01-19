@@ -7,6 +7,7 @@ import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal, MoveBaseActionGoal
 from allocation_common.msg import gazebo2world_info
 from std_msgs.msg import Int16
+from std_msgs.msg import Int64MultiArray
 
 
 class UGV_Waypoint():
@@ -42,7 +43,9 @@ class UGV_Waypoint():
         self.shadow_drift_y = 0.75                           # The drift of the shadow location in the ground relative to the original task location (in the y-coordinate) 
         self.origin_x = 0                                    # The default starting position (x-coordinate) of jackal-x (Will be updated by getOriginLocation() procedure
         self.origin_y = 0                                    # The default starting position (y-coordinate) of jackal-x (Will be updated by getOriginLocation() procedure
-    
+        self.target_task = Int64MultiArray()
+        self.target_task.data = [-1] * 10
+
     def initializeSubscribers(self):
         # member helper function to set up subscribers (Put all of subscribers here)
         
@@ -50,6 +53,7 @@ class UGV_Waypoint():
         # Subscriber for updating the dynamics position and velocity of each tasks and robots
         self.update_dynamics = rospy.Subscriber("/allocation_gazebo/gazebo2world_info", gazebo2world_info, self.callback_dynamics, queue_size=10)
         # Subscriber for updating which task as the target waypoint
+        self.update_waypoint_sequence = rospy.Subscriber("/target_task_result", Int64MultiArray, self.callback_waypoint_sequence, queue_size=10)    
         self.update_waypoint = rospy.Subscriber("/update_waypoint", Int16, self.callback_waypoint, queue_size=10)    
        
     
@@ -126,7 +130,16 @@ class UGV_Waypoint():
 
         self.k = msg.data
         print('Receiving waypoint ',self.k)
-        
+        # self.target_task.data = msg.data
+        # self.k = self.target_task.data[self.jackal_id]
+
+    def callback_waypoint_sequence(self,msg):
+        # Subscriber to get the set of MRTA problem parameter published by mrta_problem_generator node
+
+        self.k = msg.data[self.jackal_id+5]
+        print('Receiving waypoint ',self.k)
+        # self.target_task.data = msg.data
+        # self.k = self.target_task.data[self.jackal_id]
 
     def movebase_client(self,target_x,target_y):
 

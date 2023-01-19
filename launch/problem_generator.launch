@@ -3,13 +3,14 @@
 <launch>
   
   <!-- Load joint controller configurations from YAML file to parameter server -->
-  <rosparam file="$(find bebop_simulator)/config/mrta_problem_default.yaml" command="load"/>
+  <!-- <rosparam file="$(find bebop_simulator)/config/mrta_problem_default.yaml" command="load"/> -->
 
-  <node name="mrta_problem_generator" pkg="bebop_simulator"  type="mrta_problem_generator.py" output="screen" />
+  <!-- <node name="mrta_problem_generator" pkg="bebop_simulator"  type="mrta_problem_generator.py" output="screen" /> -->
   <node name="pmrta_allocator" pkg="bebop_simulator"  type="pmrta_allocator.py" output="screen" />
-  <node name="genetic_allocator" pkg="bebop_simulator"  type="genetic_allocator.py" output="screen" />
-  <node name="mission_data_center" pkg="bebop_simulator"  type="mission_data_center.py" output="screen" />
-  <node name="task_dynamics" pkg="bebop_simulator"  type="task_dynamics.py" output="screen" />
-  <node name="battery_dynamics" pkg="bebop_simulator"  type="battery_dynamics.py" output="screen" />
+  <node name="mission_manager" pkg="bebop_simulator"  type="mission_manager.py" output="screen" />
+  <!-- <node name="genetic_allocator" pkg="bebop_simulator"  type="genetic_allocator.py" output="screen" /> -->
+  <!-- <node name="mission_data_center" pkg="bebop_simulator"  type="mission_data_center.py" output="screen" /> -->
+  <!-- <node name="task_dynamics" pkg="bebop_simulator"  type="task_dynamics.py" output="screen" /> -->
+  <!-- <node name="battery_dynamics" pkg="bebop_simulator"  type="battery_dynamics.py" output="screen" /> -->
   
 </launch>

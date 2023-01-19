@@ -25,12 +25,14 @@ class Mission_Manager():
         # ROS Initialize
         rospy.init_node('mission_manager', anonymous=True) # Initialize Node
         self.rate = rospy.Rate(10) # Set Node rate to 10Hz
-        
+        print("Mission Manager Node is working here")
 
         # Initialize Subscribers, Publishers, and Services
         self.initializeSubscribers()
         self.initializePublishers()
         self.initializeServices()
+
+        rospy.Timer(rospy.Duration(30), self.my_callback)
 
         # Initialize variables here
         self.robot_id = []
@@ -42,6 +44,8 @@ class Mission_Manager():
         self.task_vel_x = []
         self.task_vel_y = []
 
+        self.target_waypoint_mpc = []
+
         self.mrta_problem_message = MRTAProblem()
         self.mrta_problem_message.robot_velocity = []
         self.mrta_problem_message.robot_battery_level = []
@@ -49,6 +53,13 @@ class Mission_Manager():
         self.mrta_problem_message.robot_lambda = []
 
         self.target_task = Int64MultiArray()
+        self.target_task.data = [-1] * 10
+        # print("Target Task : ", self.target_task.data)
+
+        # Sending First MRTA Problem to the Allocator
+        print("Sending first problem")
+        rospy.sleep(1)                                  # Wait for the callback_dynamics to save the robot and task states 
+        self.publish_mrta_problem()
 
 
         
@@ -62,17 +73,6 @@ class Mission_Manager():
         self.update_dynamics = rospy.Subscriber("/allocation_gazebo/gazebo2world_info", gazebo2world_info, self.callback_dynamics)
         self.update_pmrta_allocation = rospy.Subscriber("/pmrta_allocation_result", PMRTAResult, self.callback_pmrta)
 
-        # self.update_genetic_allocation = rospy.Subscriber("/genetic_allocation_result", Int64, self.callback_genetic)
-        # # self.update_robot_dynamics = rospy.Subscriber("/mrta_problem_set", Int64, self.callback_problem)
-        # # self.update_robot_data = rospy.Subscriber("/robot_data_update", Int64, self.callback_robot)
-        # self.update_dynamics = rospy.Subscriber("/allocation_gazebo/gazebo2world_info", gazebo2world_info, self.callback_dynamics)
-        # self.update_task_data = rospy.Subscriber("/task_dynamics_update", Int64, self.callback_task)
-        # self.update_battery_data = rospy.Subscriber("/battery_dynamics_update", Int64, self.callback_battery)
-        # self.update_jackal_0 = rospy.Subscriber("/jackal0/joint_states", JointState, self.callback_jackal_0)
-        # self.update_jackal_1 = rospy.Subscriber("/jackal1/joint_states", JointState, self.callback_jackal_1)
-        # self.update_bebop_0 = rospy.Subscriber("/bebop0/odometry", Odometry, self.callback_bebop_0)
-        # self.update_bebop_1 = rospy.Subscriber("/bebop1/odometry", Odometry, self.callback_bebop_1)
-        # # self.update_mission_status = rospy.Subscriber("/is_mission_finished", Bool, self.callback_mission_status)
 
     def initializePublishers(self):
         # member helper function to set up publishers (Put all of publishers here)
@@ -81,26 +81,24 @@ class Mission_Manager():
         self.pub_mrta_problem = rospy.Publisher("/mrta_problem_set", MRTAProblem, queue_size=10)
         self.pub_target_task = rospy.Publisher("/target_task_result", Int64MultiArray, queue_size=10)
         
-        # #self.pub_mrta_problem = rospy.Publisher("/mrta_problem_generator", MRTAProblem, queue_size=10)
-        # self.pub_robot_data = rospy.Publisher("/robot_data_update", Int64, queue_size=10)
-        # self.pub_task_data = rospy.Publisher("/task_data_update", Int64, queue_size=10)
-        # self.pub_mission_status = rospy.Publisher("/is_mission_finished", Bool, queue_size=10)
-        # self.pub_data_record = rospy.Publisher("/data_record", Int64, queue_size=10)
         
     def initializeServices(self):
         # member helper function to set up services (Put all of services here)
         
         print('Initializing ROS Services')
         
-        
+
+    def my_callback(self,event):
+        print("Publishing next problem")
+        self.publish_mrta_problem() 
     
     def callback_dynamics(self, msg):
         # Callback for update_dynamics subscriber : Update All of Robots and Tasks information from Gazebo Dynamics
-        # print('Callback Dynamics is running')
-
+    
         # Update robots dynamics
-        
+        # print("Updating Dynamics is running")
         # Clear the previous states, and re-push the new states of robots
+        
         self.robot_id.clear()
         self.robot_pose_x.clear()
         self.robot_pose_y.clear()
@@ -129,18 +127,28 @@ class Mission_Manager():
             self.task_vel_x.append(msg.gazebo_tasks_info[i].task_twist.x)
             self.task_vel_y.append(msg.gazebo_tasks_info[i].task_twist.y)
         
+        # print("This is Callback No : ", self.cb_num)
+        # print("Robot ID : ", self.robot_id)
+        # print("Task ID : ", self.task_id)
+        # self.cb_num = self.cb_num + 1
+
+        # if (self.isProblemSent == False):
+        #     self.publish_mrta_problem()
+        #     self.isProblemSent = True
         
 
     
     def callback_pmrta(self, msg):
         # subscriber to get status of mission success whether it is already finished or not
+        
+        print("Welcome to the PMRTA Result")
         self.pmrta_allocation_result = msg.allocation_result
         self.robot_number = msg.robot_number
         self.task_number = msg.task_number
         self.time_horizon = msg.time_horizon
         
         self.allocation_result = np.zeros([self.robot_number,self.task_number,self.time_horizon],dtype=float)
-        self.target_waypoint = np.zeros([self.robot_number,self.time_horizon],dtype=int)#,dtype= int)
+        self.target_waypoint = -1*np.ones([self.robot_number,self.time_horizon],dtype=int)#,dtype= int)
 
         count = 0
 
@@ -150,18 +158,20 @@ class Mission_Manager():
                     self.allocation_result[i,j,k] = self.pmrta_allocation_result[count]
                     count = count + 1
                     if (self.allocation_result[i,j,k] == 1):
-                        self.target_waypoint[i,k] = j+1
+                        self.target_waypoint[i,k] = j#+1
          
         print(self.target_waypoint)
         
-        print(self.target_waypoint[:,0])
+        self.target_waypoint_mpc = self.target_waypoint[:,0]
+        # print(self.target_waypoint[:,0])
+        print("Sequence of Waypoint : ", self.target_waypoint_mpc)
         
         
         self.publish_target_task()
 
-        rospy.sleep(1)
-        self.publish_mrta_problem()
-        print('Publishing new problem')
+        # rospy.sleep(1)
+        # self.publish_mrta_problem()
+        # print('Publishing new problem')
 
     def publish_mrta_problem(self):
         # Procedure to publish mrta problem set to be allocated
@@ -205,64 +215,16 @@ class Mission_Manager():
     def publish_target_task(self):
         # Procedure to publish target task result to each robots    
         
-        self.target_task.data = self.target_waypoint[:,0]
+        for i in range(0,len(self.robot_id)):
+            self.target_task.data[self.robot_id[i]] = self.target_waypoint_mpc[i]
+        
+        print("Finalized Waypoint Sequence : ", self.target_task.data)
         self.pub_target_task.publish(self.target_task)
 
         
     
-    # def callback_bebop_0(self, msg):
-    #     # subscriber to get status of mission success whether it is already finished or not
-    #     # self.bebop0_odom = msg.data
-    #     self.bebop0_odom = 10
-
-
-    # def callback_bebop_1(self, msg):
-    #     # subscriber to get status of mission success whether it is already finished or not
-    #     # self.bebop1_odom = msg.data
-    #     self.bebop1_odom = 10
-
-    # def callback_jackal_0(self, msg):
-    #     # subscriber to get status of mission success whether it is already finished or not
-    #     # self.jackal0_odom = msg.data
-    #     self.jackal0_odom = 10
-
-    # def callback_jackal_1(self, msg):
-    #     # subscriber to get status of mission success whether it is already finished or not
-    #     # self.jackal1_odom = msg.data
-    #     self.jackal1_odom = 10
-
     
-
-    # def callback_genetic(self, msg):
-    #     # subscriber to get status of mission success whether it is already finished or not
-    #     self.genetic_result = msg.data
-
-    # # def callback_problem(self, msg):
-    # #     # subscriber to get status of mission success whether it is already finished or not
-    # #     self.problem_set = msg.data
-
-    # # def callback_robot(self, msg):
-    # #     # subscriber to get status of mission success whether it is already finished or not
-    # #     self.robot_data = msg.data
-
-    # def callback_task(self, msg):
-    #     # subscriber to get status of mission success whether it is already finished or not
-    #     self.task_data = msg.data
-    #     #############################################################################################################
-    #     # Update Task Position
-    #     #############################################################################################################
-
-    # def callback_battery(self, msg):
-    #     # subscriber to get status of mission success whether it is already finished or not
-    #     self.battery_data = msg.data
-    #     #############################################################################################################
-    #     # Update Battery Status
-    #     #############################################################################################################
-
-    # # def callback_mission_status(self, msg):
-    # #     # subscriber to get status of mission success whether it is already finished or not
-    # #     self.mission_status = msg.data
-    # #     self.allocation_result = self.mission_status
+   
 
     # def compute_interception(self,p_i,q_j,vq_j,vp_i):
     #     # p_i is a robot position in one-dimensional vector of 2 values (x,y)
@@ -299,11 +261,7 @@ class Mission_Manager():
     
     def spin(self):
         while not rospy.is_shutdown():
-            # rospy.loginfo("Problem Deployed")
-            # self.pub_robot_data.publish(self.allocation_result)
-            # self.pub_task_data.publish(self.allocation_result)
-            # self.pub_mission_status.publish(False)
-            # self.pub_data_record.publish(self.allocation_result)
+            # self.publish_mrta_problem()
             # self.publish_mrta_problem()
             self.rate.sleep()
 

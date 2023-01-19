@@ -56,6 +56,7 @@ class PMRTA_Allocator():
 
         # Update Problem Parameter
         self.robot_number = msg.robot_number
+        print('Number of Robot is : ', self.robot_number)
         self.robot_position_x = msg.robot_position_x
         self.robot_position_y = msg.robot_position_y
         self.robot_velocity = msg.robot_velocity
