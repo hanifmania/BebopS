@@ -99,7 +99,7 @@ install(TARGETS position_controller extendedKalmanFilter position_controller_wit
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
-install(TARGETS position_controller position_controller_with_bebop_node quaternion_to_rpy
+install(TARGETS position_controller position_controller_with_bebop_node quaternion_to_rpy mrta_uav_waypoint
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

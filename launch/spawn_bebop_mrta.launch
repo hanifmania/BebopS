@@ -77,10 +77,13 @@
       <remap from="command/motor_speed" to="$(arg name)$(arg id)/command/motors" />
     </node>
 
-    <!-- Launch the trajectory generator for Bebop_X 
-   <group ns="$(arg name)$(arg id)">
-       <node name="waypoint_example" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints$(arg id).txt"/>
-    </group> -->
+    <!-- Launch the trajectory generator for Bebop_X -->
+    <group ns="$(arg name)$(arg id)">
+      <node name="uav_waypoint_manager" pkg="bebop_simulator" type="mrta_uav_waypoint" output="screen">
+        <remap from="/update_waypoint" to="/$(arg name)$(arg id)/update_waypoint" />
+      </node>
+    </group> 
+
     </group>
     
 

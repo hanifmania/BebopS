@@ -11,6 +11,7 @@ from std_msgs.msg import Bool
 from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
 from std_srvs.srv import SetBool
+from gazebo_msgs.srv import DeleteModel, DeleteModelRequest
 
 from task_switch.msg import PMRTAResult
 from task_switch.msg import MRTAProblem
@@ -25,14 +26,13 @@ class Mission_Manager():
         # ROS Initialize
         rospy.init_node('mission_manager', anonymous=True) # Initialize Node
         self.rate = rospy.Rate(10) # Set Node rate to 10Hz
-        print("Mission Manager Node is working here")
+        
 
         # Initialize Subscribers, Publishers, and Services
         self.initializeSubscribers()
         self.initializePublishers()
         self.initializeServices()
-
-        rospy.Timer(rospy.Duration(30), self.my_callback)
+        
 
         # Initialize variables here
         self.robot_id = []
@@ -44,7 +44,11 @@ class Mission_Manager():
         self.task_vel_x = []
         self.task_vel_y = []
 
-        self.target_waypoint_mpc = []
+        self.task_operation_time = []
+        self.task_status = []
+        self.task_priority = []
+
+        self.target_waypoint_command = []
 
         self.mrta_problem_message = MRTAProblem()
         self.mrta_problem_message.robot_velocity = []
@@ -54,15 +58,23 @@ class Mission_Manager():
 
         self.target_task = Int64MultiArray()
         self.target_task.data = [-1] * 10
-        # print("Target Task : ", self.target_task.data)
-
-        # Sending First MRTA Problem to the Allocator
-        print("Sending first problem")
-        rospy.sleep(1)                                  # Wait for the callback_dynamics to save the robot and task states 
-        self.publish_mrta_problem()
-
-
         
+        self.waypoint_tolerance = 1
+
+        self.shadow_drift_x = -3                             # The drift of the shadow location in the ground relative to the original task location (in the x-coordinate) 
+        self.shadow_drift_y = 0.75                           # The drift of the shadow location in the ground relative to the original task location (in the y-coordinate) 
+   
+        
+        # Initialize algorithm here
+
+        rospy.sleep(1)                                                       # Wait for the callback_dynamics to save the robot and task states 
+        
+        self.initializeTaskStatus()                                          # Initialize Task Operation Time and Task Status Dynamics
+
+        print("Sending first MRTA problem")                                  
+        self.publish_mrta_problem()                                          # Sending MRTA Problem after getting all of tasks and robots states
+        
+        rospy.Timer(rospy.Duration(30), self.reallocation_timer_callback)    # Create a timer callback to generate new allocation recomputation (by sending a new problem) every 30 seconds
        
 
     
@@ -72,6 +84,7 @@ class Mission_Manager():
         print('Initializing ROS Subscribers')
         self.update_dynamics = rospy.Subscriber("/allocation_gazebo/gazebo2world_info", gazebo2world_info, self.callback_dynamics)
         self.update_pmrta_allocation = rospy.Subscriber("/pmrta_allocation_result", PMRTAResult, self.callback_pmrta)
+        self.update_ga_allocation = rospy.Subscriber("/ga_allocation_result", PMRTAResult, self.callback_ga)
 
 
     def initializePublishers(self):
@@ -86,17 +99,87 @@ class Mission_Manager():
         # member helper function to set up services (Put all of services here)
         
         print('Initializing ROS Services')
-        
+        self.delete_completed_task_srv = rospy.Service('/delete_model', DeleteModel, self.delete_completed_task)
 
-    def my_callback(self,event):
-        print("Publishing next problem")
+
+    def delete_completed_task(self, req):
+        model_name = req.model_name
+        rospy.wait_for_service('/gazebo/delete_model')
+        delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+        resp = delete_model(model_name)
+        return resp
+
+
+    def initializeTaskStatus(self):
+        # member helper function to initialize task operation time and task status in the beginning of this node
+        
+        self.task_operation_time.clear()
+        self.task_status.clear()
+
+        print('Initializing Task Status')
+        for i in range(0,len(self.task_id)):
+            self.task_operation_time.append(5)  # Assume all of them is 5 seconds. Can be randomized next
+            self.task_status.append(1)          # 1 means task is active, while 0 means task is inactive
+            self.task_priority.append(1)          # 1 means task is active, while 0 means task is inactive
+        
+        print("Task ID : ", self.task_id)
+        print("Task Operation Time ", self.task_operation_time)
+        print("Task Status ", self.task_status)
+
+
+    def euclidian_distance(self,a,b,c,d):
+        # member helper function to calculate euclidian distance between point (a,b) and point (c,d) in the 2-dimensional cartesian coordinates
+        return math.sqrt((a-c)**2+(b-d)**2)
+
+
+    def evaluateTaskStatus(self):
+        # member helper function to check the task status and task operation time while mission is being performed
+        # print("Updating Task Status")
+        # print("Task Operation Time ", self.task_operation_time)
+        # print("Task Status ", self.task_status)
+
+        # Task status update : when task operation time is decreasing into 0, then the task is assumed to be done and thus task status become 0
+        for i in range(0,len(self.task_operation_time)):
+            if(self.task_operation_time[i]<= 0):
+                if(self.task_status[i]==1):
+                    self.task_status[i] = 0
+                    self.task_priority[i] = 0
+                    print("Updating Task Status")
+                    print("Task Operation Time ", self.task_operation_time)
+                    print("Task Status ", self.task_status) 
+                    # model_name = 'Task' + str(i)
+                    # self.delete_completed_task(DeleteModelRequest(model_name))
+                    # rospy.sleep(1)
+                    self.reallocation_event_callback()
+                
+        # Task operation time update : If the robot is being allocated to the task and is inside the waypoint tolerance boundary within the task, then the task operation time will decrease by time
+        for i in range(0,10):
+            if(self.target_task.data[i]>=0):
+                if(self.task_status[self.target_task.data[i]] == 1):
+                    # if(self.euclidian_distance(self.task_pose_x[self.target_task.data[i]]+self.shadow_drift_x,self.task_pose_y[self.target_task.data[i]]+self.shadow_drift_y,self.robot_pose_x[i-5],self.robot_pose_y[i-5]) <= self.waypoint_tolerance):
+                    #     self.task_operation_time[self.target_task.data[i]] = self.task_operation_time[self.target_task.data[i]] - 0.05
+                    if(self.euclidian_distance(self.task_pose_x[self.target_task.data[i]]+self.shadow_drift_x,self.task_pose_y[self.target_task.data[i]]+self.shadow_drift_y,self.robot_pose_x[self.robot_id.index(i)],self.robot_pose_y[self.robot_id.index(i)]) <= self.waypoint_tolerance):
+                        self.task_operation_time[self.target_task.data[i]] = self.task_operation_time[self.target_task.data[i]] - 0.05
+
+    
+    
+    def reallocation_timer_callback(self,event):
+        print("Publishing next MRTA problem (Timer-Callback)")
         self.publish_mrta_problem() 
+
+    
+    def reallocation_event_callback(self):
+        print("Publishing next MRTA problem (Event-based)")
+        
+        self.publish_mrta_problem() 
+    
+
     
     def callback_dynamics(self, msg):
         # Callback for update_dynamics subscriber : Update All of Robots and Tasks information from Gazebo Dynamics
     
         # Update robots dynamics
-        # print("Updating Dynamics is running")
+        
         # Clear the previous states, and re-push the new states of robots
         
         self.robot_id.clear()
@@ -127,28 +210,18 @@ class Mission_Manager():
             self.task_vel_x.append(msg.gazebo_tasks_info[i].task_twist.x)
             self.task_vel_y.append(msg.gazebo_tasks_info[i].task_twist.y)
         
-        # print("This is Callback No : ", self.cb_num)
-        # print("Robot ID : ", self.robot_id)
-        # print("Task ID : ", self.task_id)
-        # self.cb_num = self.cb_num + 1
-
-        # if (self.isProblemSent == False):
-        #     self.publish_mrta_problem()
-        #     self.isProblemSent = True
-        
 
     
     def callback_pmrta(self, msg):
-        # subscriber to get status of mission success whether it is already finished or not
+        # subscriber to get the result of PMRTA allocation computation
         
-        print("Welcome to the PMRTA Result")
         self.pmrta_allocation_result = msg.allocation_result
         self.robot_number = msg.robot_number
         self.task_number = msg.task_number
         self.time_horizon = msg.time_horizon
         
         self.allocation_result = np.zeros([self.robot_number,self.task_number,self.time_horizon],dtype=float)
-        self.target_waypoint = -1*np.ones([self.robot_number,self.time_horizon],dtype=int)#,dtype= int)
+        self.target_waypoint = -1*np.ones([self.robot_number,self.time_horizon],dtype=int)
 
         count = 0
 
@@ -158,20 +231,34 @@ class Mission_Manager():
                     self.allocation_result[i,j,k] = self.pmrta_allocation_result[count]
                     count = count + 1
                     if (self.allocation_result[i,j,k] == 1):
-                        self.target_waypoint[i,k] = j#+1
+                        self.target_waypoint[i,k] = j
          
         print(self.target_waypoint)
         
-        self.target_waypoint_mpc = self.target_waypoint[:,0]
-        # print(self.target_waypoint[:,0])
-        print("Sequence of Waypoint : ", self.target_waypoint_mpc)
+        self.target_waypoint_command = self.target_waypoint[:,0]
         
-        
+        print("Sequence of Waypoint : ", self.target_waypoint_command)
         self.publish_target_task()
 
-        # rospy.sleep(1)
-        # self.publish_mrta_problem()
-        # print('Publishing new problem')
+    def callback_ga(self,msg):
+        # subscriber to get the result of GA allocation computation
+        
+        self.ga_allocation_result = msg.allocation_result
+        self.robot_number = msg.robot_number
+        self.task_number = msg.task_number
+        
+        
+        self.target_waypoint = -1*np.ones(self.robot_number,dtype=int)
+
+        for i in range(0,self.robot_number):
+            self.target_waypoint[i] = self.ga_allocation_result[self.task_number*i]-1
+         
+        print(self.target_waypoint)
+        
+        self.target_waypoint_command = self.target_waypoint
+        
+        print("Sequence of Waypoint : ", self.target_waypoint_command)
+        self.publish_target_task()
 
     def publish_mrta_problem(self):
         # Procedure to publish mrta problem set to be allocated
@@ -203,20 +290,22 @@ class Mission_Manager():
         self.mrta_problem_message.task_position_y = self.task_pose_y
         self.mrta_problem_message.task_velocity_x = self.task_vel_x
         self.mrta_problem_message.task_velocity_y = self.task_vel_y
-        self.mrta_problem_message.task_priority = [1] * len(self.task_id)
-        self.mrta_problem_message.task_operation_time = [10] * len(self.task_id)
+        # self.mrta_problem_message.task_priority = [1] * len(self.task_id)
+        self.mrta_problem_message.task_priority = self.task_priority
+        # self.mrta_problem_message.task_operation_time = [10] * len(self.task_id)
+        self.mrta_problem_message.task_operation_time = self.task_operation_time
 
         self.mrta_problem_message.time_horizon = 4        
         
         self.pub_mrta_problem.publish(self.mrta_problem_message)
 
-        # print('mrta problem is published')
+        
 
     def publish_target_task(self):
         # Procedure to publish target task result to each robots    
         
         for i in range(0,len(self.robot_id)):
-            self.target_task.data[self.robot_id[i]] = self.target_waypoint_mpc[i]
+            self.target_task.data[self.robot_id[i]] = self.target_waypoint_command[i]
         
         print("Finalized Waypoint Sequence : ", self.target_task.data)
         self.pub_target_task.publish(self.target_task)
@@ -261,8 +350,7 @@ class Mission_Manager():
     
     def spin(self):
         while not rospy.is_shutdown():
-            # self.publish_mrta_problem()
-            # self.publish_mrta_problem()
+            self.evaluateTaskStatus()
             self.rate.sleep()
 
 
